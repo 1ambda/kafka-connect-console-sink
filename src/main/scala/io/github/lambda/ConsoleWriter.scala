@@ -1,23 +1,39 @@
 package io.github.lambda
 
+import java.io.{OutputStreamWriter, BufferedWriter}
+
+import com.typesafe.scalalogging.LazyLogging
+import org.apache.commons.io.IOUtils
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.connect.sink.SinkRecord
 
+import scala.util.{Failure, Try}
 
-/**
- * Handle messages for a specific TopicPartition.
- */
-class ConsoleWriter(connectorId: String, topic: String, partition: Int) extends Logging {
-  def write(record: SinkRecord): Unit = {
-    val value = record.value()
+class ConsoleWriter(topic: String, partition: Long) extends LazyLogging {
+  
+  val ENCODING_UTF8 = "UTF-8"
 
-     println(value)
+  private val outputStream = new BufferedWriter(new OutputStreamWriter(System.out))
+
+  def buffer(record: SinkRecord): Unit = {
+    logger.debug("Buffered record in ConsoleWriter({})", getWriterId)
+    outputStream.write(s"${record.value}\n")
+  }
+
+  def flush(offset: OffsetAndMetadata): Unit = {
+    logger.debug("Flushing records in ConsoleWriter({})", getWriterId)
+    outputStream.flush()
   }
 
   def close(): Unit = {
-    logger.info(s"Closing ConsoleWriter connectorId: ${connectorId}, topic: ${topic}, partition: ${partition}")
+    logger.debug("Closing ConsoleWriter({})", getWriterId)
 
 
+    /** do not close outputStream since it is System.out */
+    // IOUtils.closeQuietly(outputStream)
 
-    logger.info(s"Closed ConsoleWriter connectorId: ${connectorId}, topic: ${topic}, partition: ${partition}")
+    logger.debug("Closed ConsoleWriter({})", getWriterId)
   }
+
+  def getWriterId: String = s"${topic}-${partition}"
 }

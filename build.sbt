@@ -16,6 +16,8 @@ val LIB_VERSION_TYPESAFE_CONFIG = "1.3.0"
 val LIB_VERSION_SLF4J = "1.7.21"
 val LIB_VERSION_LOGBACK = "1.1.7"
 val LIB_VERSION_IVY = "2.4.0"
+val LIB_VERSION_COMMONS_IO = "1.3.2"
+val LIB_VERSION_SCALA_LOGGING = "3.1.0"
 
 resolvers ++= Seq(
   "conjars" at "http://conjars.org/repo/",
@@ -27,6 +29,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % LIB_VERSION_TYPESAFE_CONFIG,
   "org.apache.kafka" %% "kafka" % LIB_VERSION_KAFKA,
   "org.apache.kafka" % "connect-api" % LIB_VERSION_KAFKA,
+  "org.apache.commons" % "commons-io" % LIB_VERSION_COMMONS_IO,
+  "com.typesafe.scala-logging" %% "scala-logging" % LIB_VERSION_SCALA_LOGGING,
   "org.scalatest" %% "scalatest" % LIB_VERSION_SCALATEST % "test",
 
   /** java */
