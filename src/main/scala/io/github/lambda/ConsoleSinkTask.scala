@@ -19,32 +19,27 @@ import org.apache.kafka.connect.errors.ConnectException
 class ConsoleSinkTask extends SinkTask with LazyLogging {
 
   var container: mutable.Map[TopicPartition, ConsoleWriter] = _
-  var id: Option[String] = None
+
+  /** task config */
+  var id: String = _
 
   override def start(props: util.Map[String, String]): Unit = {
     logger.info("Starting ConsoleSinkTask")
 
-    Try {
-      new ConsoleSinkConfig(props)
-    } match {
-      case Success(config) =>
-        val id = config.getString(ConsoleSinkConfig.CONFIG_NAME_CONNECTOR_ID)
-        logger.info("Initializing connector id: {}", id)
+    logger.info(props.toString)
 
-        val topicPartitions = context.assignment()
-        val default = new mutable.LinkedHashMap[TopicPartition, ConsoleWriter]()
+    val id = props.get(ConsoleSinkConfig.CONFIG_NAME_CONNECTOR_ID)
+    logger.info("Initializing connector id: {}", id)
 
-        logger.info("Creating ConsoleWriters for TopicPartitions: {}", topicPartitions.toString)
+    val topicPartitions = context.assignment()
+    val default = new mutable.LinkedHashMap[TopicPartition, ConsoleWriter]()
 
-        container = topicPartitions.foldLeft(default)((acc, topicPartition) => {
-          acc.put(topicPartition, new ConsoleWriter(topicPartition.topic, topicPartition.partition))
-          acc
-        })
+    logger.info("Creating ConsoleWriters for TopicPartitions: {}", topicPartitions.toString)
 
-      case Failure(e) =>
-        val message = s"Failed to parse props in ConsoleSinkTask.start due to ${e.getMessage}"
-        throw new ConnectException(message, e)
-    }
+    container = topicPartitions.foldLeft(default)((acc, topicPartition) => {
+      acc.put(topicPartition, new ConsoleWriter(topicPartition.topic, topicPartition.partition))
+      acc
+    })
 
     logger.info("Started ConsoleSinkTask")
   }
@@ -93,3 +88,5 @@ class ConsoleSinkTask extends SinkTask with LazyLogging {
 
   override def version(): String = Version.VERSION
 }
+
+
